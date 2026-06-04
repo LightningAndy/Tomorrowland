@@ -1,0 +1,11 @@
+{
+  "name": "tomorrowland-2026",
+  "version": "1.0.0",
+  "description": "Tomorrowland 2026 Lineup Tracker",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
