@@ -584,3 +584,29 @@ body {
   .partner-rating { border: none; padding: 0; }
   .rating-section { align-items: flex-start; }
 }
+
+/* ---- MUSIC LINKS ---- */
+.music-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.music-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  color: var(--text3);
+}
+
+.music-link:hover { border-color: rgba(255,255,255,0.2); color: var(--text2); }
+.music-link.spotify:hover  { border-color: #1db954; color: #1db954; }
+.music-link.apple:hover    { border-color: #fc3c44; color: #fc3c44; }
+.music-link.soundcloud:hover { border-color: #f26f23; color: #f26f23; }
