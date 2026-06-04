@@ -7,21 +7,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-    .screen { display: none !important; height: 100vh; overflow-y: auto; }
-    .screen.active { display: block !important; }
-    #loginScreen.active {
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-    }
-  </style>
 </head>
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="screen active">
+  <!-- LOGIN SCREEN — visible by default -->
+  <div id="loginScreen" style="display:flex; position:fixed; inset:0; align-items:center; justify-content:center; z-index:10;">
     <div class="login-bg">
       <div class="login-particles" id="particles"></div>
     </div>
@@ -49,8 +39,8 @@
     </div>
   </div>
 
-  <!-- MAIN APP -->
-  <div id="appScreen" class="screen">
+  <!-- MAIN APP — hidden by default -->
+  <div id="appScreen" style="display:none; position:fixed; inset:0; overflow-y:auto;">
     <header class="app-header">
       <div class="header-left">
         <div class="logo-mark small">TL</div>
@@ -71,7 +61,6 @@
     </header>
 
     <div class="app-body">
-      <!-- TABS -->
       <div class="tabs-bar">
         <button class="tab-btn active" onclick="showTab('rate', this)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
@@ -88,7 +77,6 @@
         </button>
       </div>
 
-      <!-- DAY FILTERS -->
       <div class="day-filters">
         <span class="filter-label">Day:</span>
         <button class="day-btn active" onclick="filterDay('all', this)">All</button>
@@ -97,12 +85,10 @@
         <button class="day-btn" onclick="filterDay('3', this)">Sunday 20 Jul</button>
       </div>
 
-      <!-- RATE TAB -->
       <div id="tab-rate" class="tab-content active">
         <div class="artist-list" id="artistList"></div>
       </div>
 
-      <!-- PRIORITY TAB -->
       <div id="tab-priority" class="tab-content">
         <div class="priority-header">
           <p class="priority-intro">Combined priority based on both ratings. Higher average score = must see.</p>
@@ -110,7 +96,6 @@
         <div class="priority-list" id="priorityList"></div>
       </div>
 
-      <!-- CONFLICTS TAB -->
       <div id="tab-conflicts" class="tab-content">
         <div class="priority-header">
           <p class="priority-intro">Artists where one person rated 5 stars and the other chose "Not for me".</p>
