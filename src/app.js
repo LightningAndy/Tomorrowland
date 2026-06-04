@@ -123,13 +123,12 @@ function handleLogin() {
 
   if (USERS[username] && USERS[username] === password) {
     currentUser = username;
-    // Find partner
     const others = Object.keys(USERS).filter(u => u !== username);
     partnerMap = others[0] || null;
 
     err.classList.remove('visible');
-    document.getElementById('loginScreen').classList.remove('active');
-    document.getElementById('appScreen').classList.add('active');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
     initApp();
   } else {
     err.classList.add('visible');
@@ -139,8 +138,8 @@ function handleLogin() {
 
 function handleLogout() {
   currentUser = null;
-  document.getElementById('appScreen').classList.remove('active');
-  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('usernameInput').value = '';
   document.getElementById('passwordInput').value = '';
 }
