@@ -218,6 +218,11 @@ const LINEUP = [
   { id: 252, day: 3, name: 'Helsloot',               stage: 'Celestia by KuCoin' },
   { id: 253, day: 3, name: 'Öona Dahl',              stage: 'Celestia by KuCoin' },
   { id: 254, day: 3, name: 'Fake Mood',              stage: 'Celestia by KuCoin' },
+  // Multi-day artists — additional appearances
+  { id: 301, day: 2, name: 'Nicky Romero',           stage: 'House of Fortune' },
+  { id: 302, day: 2, name: 'Mike Williams',          stage: 'House of Fortune' },
+  { id: 303, day: 1, name: 'Funkhauser',             stage: 'Moose Bar' },
+  { id: 304, day: 2, name: 'Oliver Heldens',         stage: 'The Great Library' },
 ];
 
 const DAY_NAMES = { 1: 'Friday 17 Jul', 2: 'Saturday 18 Jul', 3: 'Sunday 19 Jul' };
