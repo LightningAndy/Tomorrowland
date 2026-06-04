@@ -404,7 +404,7 @@ function getMusicLinks(artistName) {
   const q = encodeURIComponent(artistName);
   return {
     spotify:    `https://open.spotify.com/search/${q}`,
-    apple:      `https://music.apple.com/search?term=${q}`,
+    apple:      `https://music.apple.com/gb/search?term=${q}`,
     soundcloud: `https://soundcloud.com/search?q=${q}`,
   };
 }
