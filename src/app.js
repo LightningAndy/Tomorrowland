@@ -84,8 +84,8 @@ const DAY_NAMES = { 1: 'Friday 18 Jul', 2: 'Saturday 19 Jul', 3: 'Sunday 20 Jul'
 // ============================================================
 let currentUser = null;
 let currentDay  = 'all';
-let ratings     = {};   // { [userId]: { [artistId]: { stars, nope } } }
-let listeners   = [];   // SSE connections to close on logout
+let ratings     = {};
+let listeners   = [];
 
 // ============================================================
 // FIREBASE HELPERS
@@ -103,23 +103,22 @@ async function fbGet(path) {
   return res.json();
 }
 
-// Real-time listener using Firebase SSE streaming
+// Stable polling instead of SSE - checks every 3 seconds
 function fbListen(path, callback) {
-  const es = new EventSource(`${FIREBASE_URL}/${path}.json`);
-  es.addEventListener('put', e => {
-    const data = JSON.parse(e.data);
-    callback(data.data);
-  });
-  es.addEventListener('patch', e => {
-    const data = JSON.parse(e.data);
-    callback(data.data);
-  });
-  listeners.push(es);
-  return es;
+  const interval = setInterval(async () => {
+    try {
+      const data = await fbGet(path);
+      if (data !== null) callback(data);
+    } catch(e) {
+      // Network blip - silently ignore, try again next interval
+    }
+  }, 3000);
+  listeners.push(interval);
+  return interval;
 }
 
 function closeListeners() {
-  listeners.forEach(es => es.close());
+  listeners.forEach(i => clearInterval(i));
   listeners = [];
 }
 
@@ -163,7 +162,7 @@ function handleLogout() {
 // INIT
 // ============================================================
 async function initApp() {
-  // Load all ratings once first so UI isn't blank
+  // Load all ratings immediately on login
   const data = await fbGet('ratings');
   ratings = data || {};
 
@@ -171,9 +170,8 @@ async function initApp() {
   renderPriorityList();
   renderConflicts();
 
-  // Then subscribe to live updates for ALL ratings
+  // Then poll every 3 seconds for updates
   fbListen('ratings', snapshot => {
-    if (!snapshot) return;
     ratings = snapshot;
     renderArtistList();
     renderPriorityList();
@@ -193,7 +191,6 @@ async function setUserRating(userId, artistId, update) {
   const current = getUserRating(userId, artistId);
   const updated = { ...current, ...update };
   ratings[userId][artistId] = updated;
-  // Push to Firebase
   await fbSet(`ratings/${userId}/${artistId}`, updated);
 }
 
@@ -260,14 +257,12 @@ function buildArtistCard(artist, partner) {
   card.className = 'artist-card' + (isConflict ? ' has-conflict' : '');
   card.id = 'card-' + artist.id;
 
-  // Info
   const info = document.createElement('div');
   info.style.flex = '1';
   info.innerHTML = `<div class="artist-name">${artist.name}${isConflict ? ' <span style="color:var(--red);font-size:13px;">⚠ conflict</span>' : ''}</div>
                     <div class="artist-stage">${artist.stage} · ${DAY_NAMES[artist.day]}</div>`;
   card.appendChild(info);
 
-  // Partner rating (read-only)
   if (partner) {
     const pr = document.createElement('div');
     pr.className = 'partner-rating';
@@ -275,7 +270,6 @@ function buildArtistCard(artist, partner) {
     card.appendChild(pr);
   }
 
-  // My rating
   const section = document.createElement('div');
   section.className = 'rating-section';
   section.innerHTML = `<div class="rating-label">Your rating</div>`;
@@ -285,7 +279,6 @@ function buildArtistCard(artist, partner) {
   for (let s = 1; s <= 5; s++) {
     const star = document.createElement('span');
     star.className = 'star' + (s <= myRating.stars ? ' lit' : '');
-    star.dataset.value = s;
     star.textContent = '★';
     star.addEventListener('mouseenter', () => previewStars(starsDiv, s));
     star.addEventListener('mouseleave', () => resetStarPreview(starsDiv, artist.id));
@@ -353,12 +346,10 @@ function getScore(artistId) {
   let scores = [];
   if (my.nope)        scores.push(0);
   else if (my.stars)  scores.push(my.stars);
-
   if (pr) {
     if (pr.nope)       scores.push(0);
     else if (pr.stars) scores.push(pr.stars);
   }
-
   return scores.length ? scores.reduce((a,b) => a+b, 0) / scores.length : -1;
 }
 
@@ -385,11 +376,11 @@ function renderPriorityList() {
 
   let rank = 1;
   rated.forEach(a => {
-    const my      = getUserRating(currentUser, a.id);
-    const partner = getPartner();
-    const pr      = partner ? getUserRating(partner, a.id) : null;
+    const my       = getUserRating(currentUser, a.id);
+    const partner  = getPartner();
+    const pr       = partner ? getUserRating(partner, a.id) : null;
     const conflict = detectConflict(my, pr);
-    const item = document.createElement('div');
+    const item     = document.createElement('div');
     item.className = 'priority-item';
     item.innerHTML = `
       <div class="priority-rank${rank <= 3 ? ' top' : ''}">${rank}</div>
@@ -399,8 +390,7 @@ function renderPriorityList() {
       </div>
       ${conflict
         ? `<span class="score-pill conflict">⚠</span>`
-        : `<span class="score-pill">${a.score.toFixed(1)}</span>`}
-    `;
+        : `<span class="score-pill">${a.score.toFixed(1)}</span>`}`;
     container.appendChild(item);
     rank++;
   });
@@ -471,10 +461,10 @@ function renderConflicts() {
   container.innerHTML = '';
 
   conflicts.forEach(a => {
-    const my        = getUserRating(currentUser, a.id);
-    const pr        = getUserRating(partner, a.id);
-    const myWants   = my.stars === 5;
-    const item = document.createElement('div');
+    const my      = getUserRating(currentUser, a.id);
+    const pr      = getUserRating(partner, a.id);
+    const myWants = my.stars === 5;
+    const item    = document.createElement('div');
     item.className = 'conflict-item';
     item.innerHTML = `
       <div class="conflict-icon">⚡</div>
